@@ -1,0 +1,2 @@
+.custom_alert{ position: absolute; top: 80px; right:10px;z-index:9; }
+.custom_alert .close{ background: transparent; border: none;font-weight: 700;}

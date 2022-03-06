@@ -1,58 +1,103 @@
 {% extends 'base.html' %}
 {% block title %}Product{% endblock title %}
 {% block body %}
-
+{% load static %}
 <div class="container my-3">  
 <!------ Include the above in your HEAD tag ---------->
-
-  <form class="form-horizontal" method='post' action='' enctype="multipart/form-data">
-  <fieldset>
-
-  <!-- Form Name -->
-  <legend>PRODUCTS</legend>
-    {% csrf_token %}
-  <!-- Text input-->
-  {% if success == 1 %} <strong>Product added successfully!</strong>{% endif %}
-  <div class="form-group my-3">
-    <label class="col-md-4 control-label" for="product_name">Product Name</label>  
-    <div class="col-md-4">
-    <input id="product_name" name="product_name" placeholder="Product Name" class="form-control input-md" required="" type="text">
+<div class='row'>
+  <div class=col-md-6>
+    <form class="form-horizontal" method='post' action='' enctype="multipart/form-data">
+      <fieldset>
+    
+      <!-- Form Name -->
+      <legend>PRODUCTS</legend>
+        {% csrf_token %}
+    
+      <!-- Text input-->
       
-    </div>
+      <div class="form-group my-3">
+        <label class="col-md-8 control-label" for="product_name">Product Name</label>  
+        <div class="col-md-8">
+        <input id="product_name" name="product_name" placeholder="Product Name" class="form-control input-md" required="" type="text">
+          
+        </div>
+      </div>
+    
+      <!-- Text input-->
+      <div class="form-group  my-3">
+        <label class="col-md-8 control-label" for="available_quantity">Quantity</label>  
+        <div class="col-md-8">
+        <input id="available_quantity" name="available_quantity" placeholder="Available Quantity" class="form-control input-md" required="" type="number" >
+          
+        </div>
+      </div>
+      <!-- Text input-->
+      <div class="form-group  my-3">
+        <label class="col-md-8 control-label" for="price">Price</label>  
+        <div class="col-md-8">
+        <input id="price" name="price" placeholder="Price in Rupees" class="form-control input-md" required="" type="number" >
+          
+        </div>
+      </div>
+    
+      <!-- File Button --> 
+      <div class="form-group my-3">
+        <label class="col-md-8 control-label" for="filebutton">Product Image</label>
+        <div class="col-md-8">
+          <input id="image" name="image" class="input-file" type="file" accept="image/*">
+        </div>
+      </div>
+      <!-- Button -->
+      <div class="form-group my-3">    
+        <div class="col-md-8">
+          <input id="singlebutton" name="singlebutton" value="Save Product" class="btn btn-primary" type="submit" />
+        </div>
+        </div>
+    
+      </fieldset>
+      </form>
   </div>
+  <div class=col-md-6>
+    <h4 class="text-center">Product List</h4>
+        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                  <th scope="col">Image</th>
+                  <th scope="col">Product Name</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if products %}
+                  {% for product in products %}
+                  
+                <tr>
+                  
+                  <th scope="row"><img src="{{ MEDIA_URL }}{{product.image}}" class='rounded-circle' style="height: 70px; width: 70px;" alt='img'></th>
+                  <td>{{product.product_name}}</td>
+                  <td>{{product.available_quantity}}</td>
+                  <td>{{product.price}}</td>
+                  <td>
+                      <a href="{% url 'edit' product.id %}" class="btn btn-success btn-sm"> edit</a>
+                      <form action="{% url 'delete' product.id %}" method="POST" class="d-inline">
+                          {% csrf_token %}
+                          <input type="submit" class="btn btn-danger btn-sm" value="Delete" >
+                      </form>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                  <tr><td colspan='5'><center>Yet to add a product.</center></td></tr>
+              {% endif %}
+              </tbody>
+            </table>
 
-  <!-- Text input-->
-  <div class="form-group  my-3">
-    <label class="col-md-4 control-label" for="available_quantity">Quantity</label>  
-    <div class="col-md-4">
-    <input id="available_quantity" name="available_quantity" placeholder="Available Quantity" class="form-control input-md" required="" type="number" >
-      
-    </div>
-  </div>
-  <!-- Text input-->
-  <div class="form-group  my-3">
-    <label class="col-md-4 control-label" for="price">Price</label>  
-    <div class="col-md-4">
-    <input id="price" name="price" placeholder="Price in Rupees" class="form-control input-md" required="" type="number" >
-      
-    </div>
-  </div>
 
-  <!-- File Button --> 
-  <div class="form-group my-3">
-    <label class="col-md-4 control-label" for="filebutton">Product Image</label>
-    <div class="col-md-4">
-      <input id="image" name="image" class="input-file" type="file" accept="image/*">
-    </div>
+        
   </div>
-  <!-- Button -->
-  <div class="form-group my-3">    
-    <div class="col-md-4">
-      <input id="singlebutton" name="singlebutton" value="Save Product" class="btn btn-primary" type="submit" />
-    </div>
-    </div>
-
-  </fieldset>
-  </form>
+</div>
 </div>
 {% endblock body%}

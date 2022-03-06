@@ -7,3 +7,6 @@ class Product(models.Model):
     price = models.FloatField(max_length=10)
     image = models.ImageField(upload_to='images')
     date = models.DateField()  
+
+def __str__(self):
+    return self.product_name
