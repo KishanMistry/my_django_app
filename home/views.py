@@ -4,11 +4,33 @@ from home.models import Product
 from datetime import datetime
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 
 # Create your views here.
 def index(request):
-    context = { "variable" : "This is the variable" }
-    return render(request, 'index.html', context) 
+    #context = { "variable" : "This is the variable" }
+    posts_list = Product.objects.all()
+
+    query = request.GET.get('q')
+    if query:
+        posts_list = Product.objects.filter(
+            Q(product_name__icontains=query) | Q(price__icontains=query)
+        ).distinct()
+    paginator = Paginator(posts_list, 3) # 6 posts per page
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    context = {
+        'posts': posts,        
+    }
+    return render(request, "index.html", context)
     #return HttpResponse("This is home page")    
 
 def about(request):
