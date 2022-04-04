@@ -2,6 +2,41 @@
 {% block title %}Product{% endblock title %}
 {% block body %}
 {% load static %}
+<script>
+    $(document).on('click', '.page_link',  function(){
+      var page_no = $(this).attr('data-item');      
+        $.ajax({
+            type: "POST",
+            // define url name
+            url: "{% url 'product' %}", 
+            data : {    
+            page_no : page_no, 
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+          },
+          // handle a successful response
+          success: function (response) {
+            $('#data_list').html('')
+            $.each(response.results, function(i, val) {
+              var edit_path = "{% url 'edit' 1 %}"
+              var edit_path = "{% url 'delete' 1 %}"
+              html_data = '<tr><td scope="row"><img src="'+val.image+'" class="rounded-circle" style="height: 70px; width: 70px;" alt="img"></td>'+
+              '<td>'+val.product_name+'</td>'+
+              '<td>'+val.available_quantity+'</td>'+
+              '<td>'+val.price+'</td>'+
+              '<td><a href="'+edit_path+'" class="btn btn-success btn-sm"> edit</a>'+
+              '<form action="{% url 'product' %}" method="POST" class="d-inline">'+
+              '<input type="submit" class="btn btn-danger btn-sm" value="Delete" >'+
+              '</form></td></tr>';
+              $('#data_list').append(html_data)
+            });
+          },
+          error: function () {
+            alert('Error Occured');
+          }
+        }); 
+    });  
+    
+	</script>
 <div class="container my-3">  
 <!------ Include the above in your HEAD tag ---------->
 <div class='row'>
@@ -70,22 +105,23 @@
                   <th scope="col">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id='data_list'>
                 {% if products %}
                   {% for product in products %}
                   
                 <tr>
-                  
-                  <th scope="row"><img src="{{ MEDIA_URL }}{{product.image}}" class='rounded-circle' style="height: 70px; width: 70px;" alt='img'></th>
+                  <td scope="row"><img src="{{ MEDIA_URL }}{{product.image}}" class='rounded-circle' style="height: 70px; width: 70px;" alt='img'></td>
                   <td>{{product.product_name}}</td>
                   <td>{{product.available_quantity}}</td>
                   <td>{{product.price}}</td>
                   <td>
                       <a href="{% url 'edit' product.id %}" class="btn btn-success btn-sm"> edit</a>
+                      <a href="{% url 'cart' product.id %}" class="btn btn-success btn-sm"> Add to Cart</a>
                       <form action="{% url 'delete' product.id %}" method="POST" class="d-inline">
                           {% csrf_token %}
                           <input type="submit" class="btn btn-danger btn-sm" value="Delete" >
                       </form>
+                      
                   </td>
                 </tr>
                 {% endfor %}
@@ -94,6 +130,11 @@
               {% endif %}
               </tbody>
             </table>
+            <div class='pagination'>
+              {% for i in page_range %}
+                <a style="margin-left: 5px; " href="#" class='page_link' data-item={{i}}>{{i}}</a>
+              {% endfor %}
+          </div>
 
 
         
