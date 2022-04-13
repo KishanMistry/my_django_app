@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Product{% endblock title %}
+{% block body %}
+{% load static %}
+<script>
+    $(document).on("click", ".btn_submit", function(e){
+        /*e.preventDefault();
+        btn = $(this).val();
+        alert($(this).closest('.quantity').attr('val'))*/        
+    });
+</script>
+<div class="container my-3">  
+<!------ Include the above in your HEAD tag ---------->
+<div class='row'>
+  <div class="col-md-8">
+    <h4 class="text-center">Cart List</h4>
+        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                  <th scope="col">Image</th>
+                  <th scope="col">Product Name</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id='data_list'>
+                {% if cart %}
+                      
+                    {% for item in cart %}
+                    <tr>
+                    <td scope="row"><img src="{{ MEDIA_URL }}{{item.product_id.image}}" class='rounded-circle' style="height: 70px; width: 70px;" alt='img'></td>
+                    <td>{{ item.product_id.product_name }}</td>
+                    <td>
+                        <form method='post' action="{% url 'update_cart' item.id %}" id='frm_quantity'>
+                            {% csrf_token %}
+                            <button type='submit' name='less' value='less' class='btn_submit'>-</button>
+                            <input type='text' class='quantity' name='quantity' value='{{item.quantity}}' style='width:20%' max='3'/>
+                            <button type='submit' name='more' value='more' class='btn_submit'>+</button>
+                        </form>
+                    </td>
+                    <td>{{item.price}}</td>
+                    <td>
+                      <form action="{% url 'remove_from_cart' item.id %}" method="POST" class="d-inline">
+                          {% csrf_token %}
+                          <input type="submit" class="btn btn-danger btn-sm" value="Delete" id='quantity'>
+                      </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                <!-- <tr>
+                    <td colspan='3'></td>
+                    <td>120</td>
+                    <td></td>
+                </tr> -->
+                {% else %}
+                  <tr><td colspan='5'><center> <a href="{% url 'product' %}">Go back </a> to product list.</center></td></tr>
+              {% endif %}
+              </tbody>
+            </table>
+  </div>
+</div>
+</div>
+{% endblock body%}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+    {% load static %}
+    {% block title %}Profile{% endblock title %}
+        {% if messages %}
+            {% for message in messages %}
+                <script>
+                    alert("{{ message }}");
+                </script>
+            {% endfor %}
+        {% endif %}
+{% block body %}
+<div class="container-fluid px-0">   
+    <div class="container rounded bg-white mt-5 mb-5">
+        <div class="row">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-3 border-right">
+                <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                    <img class="rounded-circle mt-5" src="">
+                    <span class="font-weight-bold">Amelly</span><span class="text-black-50">amelly12@bbb.com</span><span></span>
+                </div>
+            </div>
+            <div class="col-md-5 border-right">
+                <div class="p-3 py-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-right">Profile Settings</h4>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6"><label class="labels">Name</label>{{ form.first_name }}</div>
+                        <div class="col-md-6"><label class="labels">Surname</label>{{ form.last_name }}</div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12"><label class="labels">PhoneNumber</label>{{ form.phone_no }}</div>
+                        <div class="col-md-12"><label class="labels">Email ID</label>{{ form.email }}</div>
+                        <div class="col-md-12"><label class="labels">Username</label>{{ form.username }}</div>
+                    </div>
+                    <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="button">Save Profile</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+</div>
+{% endblock body%}

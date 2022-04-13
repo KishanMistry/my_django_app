@@ -5,7 +5,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=122)
     available_quantity = models.CharField(max_length=10)
     price = models.FloatField(max_length=10)
-    image = models.ImageField(upload_to='images')
+    image = models.ImageField(upload_to='media')
     date = models.DateField()  
 
 def __str__(self):

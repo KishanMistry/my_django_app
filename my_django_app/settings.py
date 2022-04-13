@@ -29,6 +29,15 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +48,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    ## user app
+    'user.apps.UserConfig',
+    ##Crispy form
+    'crispy_forms',
+    'cart.apps.CartConfig',
+    
+    # All auth
+    # The following apps are required:
+    
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # ... include the providers you want to enable:
+    'allauth.socialaccount.providers.facebook',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,6 +80,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'my_django_app.urls'
+
 
 TEMPLATES = [
     {
@@ -132,5 +161,30 @@ STATICFILES_DIRS = [
 # Base url to serve media files  
 MEDIA_URL = '/media/'  
   
-# Path where media is stored  
+# Path where media is stored
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') 
+
+
+LOGIN_REDIRECTION_URL = "index"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+
+EMAIL_HOST_USER='kimnaroal@gmail.com'
+EMAIL_HOST_PASSWORD='narola21'
+
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'facebook': {
+#         # For each OAuth based provider, either add a ``SocialApp``
+#         # (``socialaccount`` app) containing the required client
+#         # credentials, or list them here:
+#         'APP': {
+#             'client_id': '1352100735305688',
+#             'secret': 'd2eea1b5248e02e169eabb288064b6e0',
+#             'key': '8cae4691fbb83b646bc0056a02188c99',
+#         }
+#     }
+# }

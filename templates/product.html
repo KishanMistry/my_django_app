@@ -10,21 +10,25 @@
             // define url name
             url: "{% url 'product' %}", 
             data : {    
-            page_no : page_no, 
+            page_no : page_no,
             csrfmiddlewaretoken: '{{ csrf_token }}',
           },
           // handle a successful response
-          success: function (response) {
+          success: function (response) {            
             $('#data_list').html('')
             $.each(response.results, function(i, val) {
+              console.log(val)
               var edit_path = "{% url 'edit' 1 %}"
-              var edit_path = "{% url 'delete' 1 %}"
+              var delete_path = "{% url 'delete' 1 %}"
               html_data = '<tr><td scope="row"><img src="'+val.image+'" class="rounded-circle" style="height: 70px; width: 70px;" alt="img"></td>'+
               '<td>'+val.product_name+'</td>'+
               '<td>'+val.available_quantity+'</td>'+
               '<td>'+val.price+'</td>'+
-              '<td><a href="'+edit_path+'" class="btn btn-success btn-sm"> edit</a>'+
-              '<form action="{% url 'product' %}" method="POST" class="d-inline">'+
+              '<td><a href="/'+val.id+'/" class="btn btn-success btn-sm"> edit</a>'+
+                {% if user.is_authenticated %}
+                '<a href="#" class="btn btn-info btn-sm mx-2" id="add_to_cart" data-item="'+val.id+'"> Add to Cart</a>'+
+                {% endif %}
+              '<form action="delete/'+val.id+'" method="POST" class="d-inline">'+
               '<input type="submit" class="btn btn-danger btn-sm" value="Delete" >'+
               '</form></td></tr>';
               $('#data_list').append(html_data)
@@ -35,29 +39,45 @@
           }
         }); 
     });  
+    $(document).on('click', '#add_to_cart',  function(){
+      var id = $(this).attr('data-item');     
+        $.ajax({
+            type: "POST",
+            // define url name
+            url: "{% url 'add_to_cart' %}", 
+            data : {
+            p_id : id, 
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            dataType: 'json'
+          },
+          // handle a successful response
+          success: function (response) {
+            alert(response.message)
+          },
+          error: function () {
+            alert('Error Occured');
+          }
+        }); 
+    }); 
     
 	</script>
 <div class="container my-3">  
 <!------ Include the above in your HEAD tag ---------->
 <div class='row'>
-  <div class=col-md-6>
+  <div class="col-md-4">
     <form class="form-horizontal" method='post' action='' enctype="multipart/form-data">
       <fieldset>
     
       <!-- Form Name -->
       <legend>PRODUCTS</legend>
-        {% csrf_token %}
-    
-      <!-- Text input-->
-      
+        {% csrf_token %}    
+      <!-- Text input-->      
       <div class="form-group my-3">
         <label class="col-md-8 control-label" for="product_name">Product Name</label>  
         <div class="col-md-8">
-        <input id="product_name" name="product_name" placeholder="Product Name" class="form-control input-md" required="" type="text">
-          
+          <input id="product_name" name="product_name" placeholder="Product Name" class="form-control input-md" required="" type="text">          
         </div>
-      </div>
-    
+      </div>    
       <!-- Text input-->
       <div class="form-group  my-3">
         <label class="col-md-8 control-label" for="available_quantity">Quantity</label>  
@@ -92,7 +112,7 @@
       </fieldset>
       </form>
   </div>
-  <div class=col-md-6>
+  <div class="col-md-8">
     <h4 class="text-center">Product List</h4>
         
         <table class="table table-hover">
@@ -102,7 +122,9 @@
                   <th scope="col">Product Name</th>
                   <th scope="col">Quantity</th>
                   <th scope="col">Price</th>
+                  {% if user.is_authenticated %}
                   <th scope="col">Action</th>
+                  {% endif %}
                 </tr>
               </thead>
               <tbody id='data_list'>
@@ -115,13 +137,14 @@
                   <td>{{product.available_quantity}}</td>
                   <td>{{product.price}}</td>
                   <td>
+                    {% if user.is_authenticated %}  
                       <a href="{% url 'edit' product.id %}" class="btn btn-success btn-sm"> edit</a>
-                      <a href="{% url 'cart' product.id %}" class="btn btn-success btn-sm"> Add to Cart</a>
+                      <a href="#" class="btn btn-info btn-sm" id='add_to_cart' data-item="{{ product.id }}"> Add to Cart</a>
                       <form action="{% url 'delete' product.id %}" method="POST" class="d-inline">
                           {% csrf_token %}
-                          <input type="submit" class="btn btn-danger btn-sm" value="Delete" >
+                          <input type="submit" class="btn btn-danger btn-sm" value="Delete">
                       </form>
-                      
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}
@@ -135,9 +158,6 @@
                 <a style="margin-left: 5px; " href="#" class='page_link' data-item={{i}}>{{i}}</a>
               {% endfor %}
           </div>
-
-
-        
   </div>
 </div>
 </div>

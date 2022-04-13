@@ -1,19 +1,38 @@
 #from curses.ascii import HT
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import (get_object_or_404, render, redirect ,HttpResponseRedirect)
 from home.models import Product
 from datetime import datetime
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
-from django.core.exceptions import ObjectDoesNotExist
-
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from home.form import ProductForm
 
 # Create your views here.
 def index(request):
-    context = { "variable" : "This is the variable" }
-    return render(request, 'index.html', context) 
+    posts_list = Product.objects.all().order_by('id')    
+    query = request.GET.get('q')
+    if query:
+        posts_list = Product.objects.filter(
+            Q(product_name__icontains=query) | Q(price__icontains=query)
+        ).distinct()
+    paginator = Paginator(posts_list, 3) # 6 posts per page
+    page = request.GET.get('page')
+
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage:
+        posts = paginator.page(paginator.num_pages)
+
+    context = {
+        'posts': posts,        
+    }
+    return render(request, "index.html", context)
     #return HttpResponse("This is home page")    
 
 def about(request):
@@ -36,18 +55,17 @@ def product(request):
         messages.success(request, 'Product created successfully!')            
     
     products = Product.objects.all()   
-    per_page = 2
+    per_page = 6
     obj_paginator = Paginator(products, per_page)   
     first_page = obj_paginator.page(1).object_list   
     page_range = obj_paginator.page_range
-
     context = {
-    'obj_paginator':obj_paginator,
-    'products':first_page,
-    'page_range':page_range
+        'obj_paginator':obj_paginator,
+        'products':first_page,
+        'page_range':page_range
     }
     
-    if request.method == 'POST':
+    if request.method == 'POST' and 'page_no' in request.POST:
         page_no = request.POST.get('page_no', None) 
         results = list(obj_paginator.page(page_no).object_list.values('id', 'product_name','price', 'available_quantity', 'image'))
         return JsonResponse({"results":results})
@@ -57,8 +75,17 @@ def contact(request):
     return render(request, 'contact.html')
 
 def edit_product(request,id):
-    products = Product.objects.all()
-    return render(request, 'product.html',{'id':id, 'products' : products })
+    context ={}
+    obj = get_object_or_404(Product, id = id)
+    form = ProductForm(request.POST or None, request.FILES or None,instance = obj) 
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Product updated successfully!')            
+        return redirect('product')
+    
+    # add form dictionary to context
+    context["form"] = form
+    return render(request, 'product_edit.html', context)
 
 def delete_product(request, id):
     if request.method == 'POST':
@@ -66,19 +93,3 @@ def delete_product(request, id):
         dl.delete()
         messages.success(request, 'Deleted Successfully!')
         return redirect('/product')
-def add_to_cart(request, id):
-    try:
-        book = Product.objects.get(pk=id)
-    except ObjectDoesNotExist:
-        pass
-    else :
-        try:
-            cart = Cart.objects.get(user = request.user, active = True)
-        except ObjectDoesNotExist:
-            cart = Cart.objects.create(user = request.user)
-            cart.save()
-            cart.add_to_cart(book_id)
-            return redirect('cart')
-        else:
-            return redirect('index')
-    return HttpResponse('here')
